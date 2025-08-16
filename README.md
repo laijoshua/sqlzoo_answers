@@ -110,8 +110,7 @@ WHERE name LIKE '%United%';
 ```sql
 SELECT name, population, area
 FROM world
-WHERE area > 3000000
-   OR population > 250000000;
+WHERE area > 3000000 OR population > 250000000;
 ```
 
 8. Exclusive OR (XOR). Show the countries that are big by area (more than 3 million) or big by population (more than 250
@@ -125,11 +124,8 @@ WHERE area > 3000000
 ```sql
 SELECT name, population, area
 FROM world
-WHERE ((population > 250000000) OR (area > 3000000))
-  AND NOT ((population > 250000000) AND (area > 3000000));
+WHERE population > 250000000 XOR area > 3000000;
 ```
-
-    COMMENT: 'XOR' operator is not supported in sqlzoo.net interpreter
 
 9. Show the name and population in millions and the GDP in billions for the countries of the continent 'South America'.
    Use the ROUND function to show the values to two decimal places. For South America show population in millions and
@@ -146,7 +142,7 @@ WHERE continent = 'South America';
     $1000.
 
 ```sql
-SELECT name, ROUND((gdp / population), -3)
+SELECT name, ROUND((gdp / population), -3) AS 'per capita GDP'
 FROM world
 WHERE gdp >= 1000000000000;
 ```
@@ -171,8 +167,7 @@ WHERE LENGTH(name) = LENGTH(capital);
 ```sql
 SELECT name, capital
 FROM world
-WHERE (LEFT(name,1) = LEFT (capital,1))
-  AND (name <> capital);
+WHERE (LEFT(name,1) = LEFT (capital,1)) AND (name <> capital);
 ```
 
 13. Equatorial Guinea and Dominican Republic have all of the vowels (a e i o u) in the name. They don't count because
@@ -184,12 +179,7 @@ WHERE (LEFT(name,1) = LEFT (capital,1))
 ```sql
 SELECT name
 FROM world
-WHERE name LIKE '%a%'
-  AND name LIKE '%e%'
-  AND name LIKE '%i%'
-  AND name LIKE '%o%'
-  AND name LIKE '%u%'
-  AND name NOT LIKE '% %';
+WHERE name LIKE '%a%' AND name LIKE '%e%' AND name LIKE '%i%' AND name LIKE '%o%' AND name LIKE '%u%' AND name NOT LIKE '% %';
 ```
 
 ## SELECT from nobel
@@ -197,7 +187,7 @@ WHERE name LIKE '%a%'
 1. Change the query shown so that it displays Nobel prizes for 1950.
 
 ```sql
-SELECT yr, subject, winner
+SELECT *
 FROM nobel
 WHERE yr = 1950;
 ```
@@ -207,8 +197,7 @@ WHERE yr = 1950;
 ```sql
 SELECT winner
 FROM nobel
-WHERE yr = 1962
-  AND subject = 'Literature';
+WHERE yr = 1962 AND subject = 'Literature';
 ```
 
 3. Show the year and subject that won 'Albert Einstein' his prize.
@@ -224,17 +213,15 @@ WHERE winner = 'Albert Einstein';
 ```sql
 SELECT winner
 FROM nobel
-WHERE subject = 'Peace'
-  AND yr >= 2000;
+WHERE yr >= 2000 AND subject = "peace";
 ```
 
 5. Show all details (yr, subject, winner) of the Literature prize winners for 1980 to 1989 inclusive.
 
 ```sql
-SELECT winner
+SELECT *
 FROM nobel
-WHERE subject = 'Peace'
-  AND yr >= 2000;
+WHERE yr BETWEEN 1980 and 1989 AND subject = "literature";
 ```
 
 6. Show all details of the presidential winners:
@@ -261,29 +248,26 @@ WHERE winner LIKE 'John%';
 8. Show the year, subject, and name of Physics winners for 1980 together with the Chemistry winners for 1984.
 
 ```sql
-SELECT yr, subject, winner
+SELECT * 
 FROM nobel
-WHERE subject = 'Physics' AND yr = 1980
-   OR subject = 'Chemistry' AND yr = 1984;
+WHERE (yr = 1980 AND subject = 'physics') OR (yr = 1984 AND subject = 'chemistry');
 ```
 
 9. Show the year, subject, and name of winners for 1980 excluding Chemistry and Medicine
 
 ```sql
-SELECT yr, subject, winner
+SELECT * 
 FROM nobel
-WHERE yr = 1980
-  AND subject NOT IN ('Chemistry', 'Medicine');
+WHERE subject NOT IN ('chemistry', 'medicine') AND yr = 1980;
 ```
 
 10. Show year, subject, and name of people who won a 'Medicine' prize in an early year (before 1910, not including 1910)
     together with winners of a 'Literature' prize in a later year (after 2004, including 2004)
 
 ```sql
-SELECT yr, subject, winner
+SELECT * 
 FROM nobel
-WHERE subject = 'Medicine' AND yr < 1910
-   OR subject = 'Literature' AND yr >= 2004;
+WHERE (subject = "medicine" AND yr < 1910) OR (subject = "literature" AND yr >= 2004);
 ```
 
 11. Find all details of the prize won by PETER GRÜNBERG
@@ -308,8 +292,8 @@ WHERE winner = 'EUGENE O''NEILL';
 ```sql
 SELECT winner, yr, subject
 FROM nobel
-WHERE winner LIKE 'Sir%'
-ORDER BY yr DESC, winner;
+WHERE winner LIKE "Sir%"
+ORDER BY yr DESC, winner ASC;
 ```
 
 14. The expression subject IN ('Chemistry','Physics') can be used as a value - it will be 0 or 1. Show the 1984 winners
@@ -318,8 +302,8 @@ ORDER BY yr DESC, winner;
 ```sql
 SELECT winner, subject
 FROM nobel
-WHERE yr = 1984
-ORDER BY CASE WHEN subject IN ('Physics', 'Chemistry') THEN 1 ELSE 0 END, subject, winner;
+WHERE yr=1984
+ORDER BY subject IN ('physics','chemistry');
 ```
 
 ## SELECT in SELECT
@@ -329,10 +313,7 @@ ORDER BY CASE WHEN subject IN ('Physics', 'Chemistry') THEN 1 ELSE 0 END, subjec
 ```sql
 SELECT name
 FROM world
-WHERE population >
-      (SELECT population
-       FROM world
-       WHERE name = 'Russia');
+WHERE population > (SELECT population FROM world WHERE name = 'Russia');
 ```
 
 2. Show the countries in Europe with a per capita GDP greater than 'United Kingdom'.
@@ -340,11 +321,7 @@ WHERE population >
 ```sql
 SELECT name
 FROM world
-WHERE continent = 'Europe'
-  AND gdp / population >
-      (SELECT gdp / population
-       FROM world
-       WHERE name = 'United Kingdom');
+WHERE continent = 'Europe' AND gdp / population > (SELECT gdp / population FROM world WHERE name = 'United Kingdom');
 ```
 
 3. List the name and continent of countries in the continents containing either Argentina or Australia. Order by name of
@@ -357,13 +334,12 @@ WHERE continent IN (SELECT continent FROM world WHERE name IN ('Argentina', 'Aus
 ORDER BY name;
 ```
 
-4. Which country has a population that is more than Canada but less than Poland? Show the name and the population.
+4. Which country has a population that is more than United Kingdom but less than Germany? Show the name and the population.
 
 ```sql
 SELECT name, population
 FROM world
-WHERE population > (SELECT population FROM world WHERE name = 'Canada')
-  AND population < (SELECT population FROM world WHERE name = 'Poland')
+WHERE population BETWEEN ((SELECT population FROM world WHERE name = 'United Kingdom') + 1) AND ((SELECT population FROM world WHERE name = 'Germany') - 1);
 ```
 
 5. Germany (population 80 million) has the largest population of the countries in Europe. Austria (population 8.5
@@ -371,23 +347,9 @@ WHERE population > (SELECT population FROM world WHERE name = 'Canada')
    population as a percentage of the population of Germany. The format should be Name, Percentage
 
 ```sql
-SELECT name,
-       CONCAT(CONVERT(DECIMAL, population / (SELECT population FROM world WHERE name = 'Germany') * 100),
-              '%') AS percentage
+SELECT name, CONCAT(ROUND(100*population/(SELECT population FROM world WHERE name = 'Germany'), 0), "%")  AS percentage
 FROM world
-WHERE continent = 'Europe';
-```
-
-    COMMENT: ROUND(x, 0) gives a lot of '0' after the decimal point you can get rid of by using 
-             additional CAST(x as INT) on it, but I think that the solution above is more transparent. 
-             Even that, I also present the solution below:
-
-```sql
-SELECT name,
-       CONCAT(CAST(ROUND((population / (SELECT population FROM world WHERE name = 'Germany') * 100), 0) AS INT),
-              '%') AS percentage
-FROM world
-WHERE continent = 'Europe';
+WHERE continent ='Europe';
 ```
 
 6. Which countries have a GDP greater than every country in Europe? [Give the name only.] (Some countries may have NULL
@@ -396,7 +358,7 @@ WHERE continent = 'Europe';
 ```sql
 SELECT name
 FROM world
-WHERE gdp > ALL (SELECT gdp FROM world WHERE gdp > 0 AND continent = 'Europe');
+WHERE gdp > ALL(SELECT gdp FROM world WHERE continent = 'Europe' AND gdp > 0);
 ```
 
 7. Find the largest country (by area) in each continent, show the continent, the name and the area:
@@ -420,8 +382,8 @@ WHERE name <= ALL (SELECT name FROM world y WHERE x.continent = y.continent);
 
 ```sql
 SELECT name, continent, population
-FROM world x
-WHERE 25000000 > ALL (SELECT population FROM world y WHERE x.continent = y.continent);
+FROM world
+WHERE continent IN (SELECT continent FROM world GROUP BY continent HAVING MAX(population) <= 25000000);
 ```
 
 10. Some countries have populations more than three times that of any of their neighbours (in the same continent). Give
@@ -460,9 +422,9 @@ WHERE continent = 'Africa';
 4. How many countries have an area of at least 1000000
 
 ```sql
-SELECT COUNT(*)
+SELECT COUNT(name)
 FROM world
-WHERE area > 1000000;
+WHERE area>=1000000
 ```
 
 5. What is the total population of ('Estonia', 'Latvia', 'Lithuania')
@@ -476,15 +438,15 @@ WHERE name IN ('Estonia', 'Latvia', 'Lithuania');
 6. For each continent show the continent and number of countries.
 
 ```sql
-SELECT continent, COUNT(*)
+SELECT continent, COUNT(name)
 FROM world
-GROUP BY continent;
+GROUP by continent;
 ```
 
 7. For each continent show the continent and number of countries with populations of at least 10 million.
 
 ```sql
-SELECT continent, COUNT(*)
+SELECT continent, COUNT(name)
 FROM world
 WHERE population >= 10000000
 GROUP BY continent; 
@@ -534,8 +496,7 @@ WHERE id = 1012;
 
 ```sql
 SELECT player, teamid, stadium, mdate
-FROM game
-         JOIN goal ON (id = matchid)
+FROM game JOIN goal ON (id = matchid)
 WHERE teamid = 'GER';
 ```
 
@@ -544,8 +505,7 @@ WHERE teamid = 'GER';
 
 ```sql
 SELECT team1, team2, player
-FROM game
-         JOIN goal ON (id = matchid)
+FROM game JOIN goal ON (id = matchid)
 WHERE player LIKE 'Mario%';
 ```
 
@@ -555,8 +515,7 @@ WHERE player LIKE 'Mario%';
 
 ```sql
 SELECT player, teamid, coach, gtime
-FROM goal
-         JOIN eteam ON (teamid = id)
+FROM goal JOIN eteam ON (teamid = id)
 WHERE gtime <= 10;
 ```
 
@@ -566,8 +525,7 @@ WHERE gtime <= 10;
 
 ```sql
 SELECT mdate, teamname
-FROM game
-         JOIN eteam ON (team1 = eteam.id)
+FROM game JOIN eteam ON (team1 = eteam.id)
 WHERE coach = 'Fernando Santos';
 ```
 
@@ -575,8 +533,7 @@ WHERE coach = 'Fernando Santos';
 
 ```sql
 SELECT player
-FROM goal
-         JOIN game ON (id = matchid)
+FROM goal JOIN game ON (id = matchid)
 WHERE stadium = 'National Stadium, Warsaw';
 ```
 
@@ -585,48 +542,42 @@ WHERE stadium = 'National Stadium, Warsaw';
 
 ```sql
 SELECT DISTINCT player
-FROM game
-         JOIN goal ON (id = matchid)
-WHERE (team1 = 'GER' OR team2 = 'GER')
-  AND teamid != 'GER';
+FROM game JOIN goal ON (id = matchid)
+WHERE (team1 = 'GER' OR team2 = 'GER') AND teamid != 'GER';
 ```
 
 9. Show teamname and the total number of goals scored.
 
 ```sql
-SELECT teamname, COUNT(*)
-FROM eteam
-         JOIN goal ON (id = teamid)
+SELECT teamname, COUNT(player)
+FROM eteam JOIN goal ON (id = teamid)
 GROUP BY teamname;
 ```
 
 10. Show the stadium and the number of goals scored in each stadium.
 
 ```sql
-SELECT stadium, COUNT(*)
-FROM game
-         JOIN goal ON (id = matchid)
+SELECT stadium, COUNT(player)
+FROM game JOIN goal ON (id = matchid)
 GROUP BY stadium;
 ```
 
 11. For every match involving 'POL', show the matchid, date and the number of goals scored.
 
 ```sql
-SELECT matchid, mdate, COUNT(*)
-FROM game
-         JOIN goal ON (id = matchid)
-WHERE team1 = 'POL'
-   OR team2 = 'POL'
-GROUP BY mdate, matchid;
+SELECT matchid, mdate, COUNT(player)
+FROM game JOIN goal ON matchid = id 
+WHERE (team1 = 'POL' OR team2 = 'POL')
+GROUP BY matchid, mdate;
+
 ```
 
 12. For every match where 'GER' scored, show matchid, match date and the number of goals scored by 'GER'
 
 ```sql
-SELECT matchid, mdate, COUNT(*)
-FROM goal
-         JOIN game ON (matchid = id)
-WHERE teamid = 'GER'
+SELECT matchid, mdate, COUNT(player)
+FROM game JOIN goal ON matchid = id 
+WHERE teamid="GER"
 GROUP BY matchid, mdate;
 ```
 
@@ -636,15 +587,10 @@ GROUP BY matchid, mdate;
     result by mdate, matchid, team1 and team2.
 
 ```sql
-SELECT mdate,
-       team1,
-       SUM(CASE WHEN teamid = team1 THEN 1 ELSE 0 END) AS score1,
-       team2,
-       SUM(CASE WHEN teamid = team2 THEN 1 ELSE 0 END) AS score2
+SELECT mdate, team1, SUM(CASE WHEN teamid = team1 THEN 1 ELSE 0 END) AS score1, team2, SUM(CASE WHEN teamid = team2 THEN 1 ELSE 0 END) AS score2
 FROM game
-         LEFT JOIN goal ON (id = matchid)
-GROUP BY mdate, matchid, team1, team2
-ORDER BY mdate, matchid, team1, team2;
+LEFT JOIN goal ON game.id = goal.matchid
+GROUP BY mdate, matchid, team1, team2;
 ```
 
 ## More JOIN
@@ -665,13 +611,12 @@ FROM movie
 WHERE title = 'Citizen Kane';
 ```
 
-3. List all of the Star Trek movies, include the id, title and yr (all of these movies include the words Star Trek in
-   the title). Order results by year.
+3. List all of the Star Trek movies, include the id, title and yr (all of these movies start with the words Star Trek in the title). Order results by year.
 
 ```sql
 SELECT id, title, yr
 FROM movie
-WHERE title LIKE '%Star Trek%'
+WHERE title LIKE 'Star Trek%'
 ORDER BY yr;
 ```
 
@@ -683,30 +628,29 @@ FROM actor
 WHERE name = 'Glenn Close';
 ```
 
-5. What is the id of the film 'Casablanca'
+5. What is the id of the 1942 film 'Casablanca'
 
 ```sql
 SELECT id
 FROM movie
-WHERE title = 'Casablanca';
+WHERE title = 'Casablanca' and yr = 1942
 ```
 
 6. Obtain the cast list for 'Casablanca'. Use movieid=11768, (or whatever value you got from the previous question)
 
 ```sql
 SELECT name
-FROM casting
-         JOIN actor ON (actorid = id)
-WHERE movieid = 27;
+FROM casting JOIN actor ON (actorid = id)
+WHERE movieid = 132689;
 ```
 
 7. Obtain the cast list for the film 'Alien'
 
 ```sql
 SELECT name
-FROM casting
-         JOIN actor ON (actorid = actor.id)
-         JOIN movie ON (movieid = movie.id)
+FROM actor 
+JOIN casting ON actor.id = actorid
+JOIN movie on movieid = movie.id
 WHERE title = 'Alien';
 ```
 
@@ -714,9 +658,9 @@ WHERE title = 'Alien';
 
 ```sql
 SELECT title
-FROM casting
-         JOIN movie ON (movieid = movie.id)
-         JOIN actor ON (actorid = actor.id)
+FROM movie
+JOIN casting ON movieid=movie.id
+JOIN actor on actorid=actor.id
 WHERE name = 'Harrison Ford';
 ```
 
@@ -725,87 +669,72 @@ WHERE name = 'Harrison Ford';
 
 ```sql
 SELECT title
-FROM casting
-         JOIN movie ON (movieid = movie.id)
-         JOIN actor ON (actorid = actor.id)
-WHERE name = 'Harrison Ford'
-  AND ord != 1;
+FROM movie
+JOIN casting ON movieid = movie.id
+JOIN actor on actorid = actor.id
+WHERE name = 'Harrison Ford' AND ord <> 1;
 ```
 
 10. List the films together with the leading star for all 1962 films.
 
 ```sql
 SELECT title, name
-FROM casting
-         JOIN movie ON (movieid = movie.id)
-         JOIN actor ON (actorid = actor.id)
-WHERE ord = 1
-  AND yr = 1962;
+FROM movie
+JOIN casting ON movieid = movie.id
+JOIN actor on actorid = actor.id
+WHERE ord = 1 and yr = 1962;
 ```
 
 11. Which were the busiest years for 'Rock Hudson', show the year and the number of movies he made each year for any
     year in which he made more than 2 movies.
 
 ```sql
-SELECT yr, COUNT(*)
+SELECT yr, COUNT(title)
 FROM movie
-         JOIN casting ON (movie.id = movieid)
-         JOIN actor ON (actorid = actor.id)
+JOIN casting ON movieid = movie.id
+JOIN actor on actorid = actor.id
 WHERE name = 'Rock Hudson'
 GROUP BY yr
-HAVING COUNT(*) > 2;
+HAVING COUNT(title) > 2
 ```
 
 12. List the film title and the leading actor for all of the films 'Julie Andrews' played in.
 
 ```sql
 SELECT title, name
-FROM casting
-         JOIN movie ON (movieid = movie.id)
-         JOIN actor ON (actorid = actor.id)
-WHERE ord = 1
-  AND movie.id IN
-      (SELECT movie.id
-       FROM movie
-                JOIN casting ON (movie.id = movieid)
-                JOIN actor ON (actorid = actor.id)
-       WHERE actor.name = 'Julie Andrews');
+FROM movie
+JOIN casting ON movieid = movie.id
+JOIN actor ON actorid = actor.id
+WHERE ord = 1 and movieid IN (SELECT movieid FROM actor JOIN casting ON id = actorid WHERE name = 'Julie Andrews');
 ```
 
 13. Obtain a list, in alphabetical order, of actors who've had at least 15 starring roles.
 
 ```sql
 SELECT name
-FROM casting
-         JOIN actor ON (actorid = actor.id)
+FROM actor JOIN casting ON actorid = actor.id
 WHERE ord = 1
-GROUP BY name
-HAVING COUNT(*) >= 15
-ORDER BY name;
+GROUP by name
+HAVING COUNT(name) >= 15
+ORDER BY name
 ```
 
 14. List the films released in the year 1978 ordered by the number of actors in the cast, then by title.
 
 ```sql
-SELECT title, COUNT(*)
-FROM casting
-         JOIN movie ON (movieid = movie.id)
+SELECT title, COUNT(actorid)
+FROM movie JOIN casting ON id = movieid
 WHERE yr = 1978
-GROUP BY movieid, title
-ORDER BY COUNT(*) DESC, title;
+GROUP BY title
+ORDER BY COUNT(actorid) DESC, title
 ```
 
 15. List all the people who have worked with 'Art Garfunkel'.
 
 ```sql
 SELECT DISTINCT name
-FROM actor
-         JOIN casting ON (id = actorid)
-WHERE name != 'Art Garfunkel'
-  AND movieid IN (SELECT movieid
-                  FROM casting
-                           JOIN actor ON (actorid = id)
-                  WHERE name = 'Art Garfunkel');
+FROM actor JOIN casting ON id = actorid
+WHERE name <> "Art Garfunkel" AND movieid IN (SELECT movieid FROM actor JOIN casting ON id = actorid WHERE name = 'Art Garfunkel')
 ```
 
 ## Using NULL
@@ -822,31 +751,28 @@ WHERE dept IS NULL;
 
 ```sql
 SELECT teacher.name, dept.name
-FROM teacher
-         INNER JOIN dept ON (dept = dept.id);
+FROM teacher INNER JOIN dept ON (teacher.dept=dept.id);
 ```
 
 3. Use a different JOIN so that all teachers are listed.
 
 ```sql
 SELECT teacher.name, dept.name
-FROM teacher
-         LEFT JOIN dept ON (dept = dept.id);
+FROM teacher LEFT JOIN dept ON (teacher.dept=dept.id);
 ```
 
 4. Use a different JOIN so that all departments are listed.
 
 ```sql
 SELECT teacher.name, dept.name
-FROM teacher
-         RIGHT JOIN dept ON (dept = dept.id);
+FROM teacher RIGHT JOIN dept ON (teacher.dept=dept.id);
 ```
 
 5. Use COALESCE to print the mobile number. Use the number '07986 444 2266' if there is no number given. Show teacher
    name and mobile number or '07986 444 2266'
 
 ```sql
-SELECT name, COALESCE(mobile, '07986 444 2266')
+SELECT name, COALESCE(mobile, '07986 444 2266') AS mobile
 FROM teacher;
 ```
 
@@ -854,9 +780,8 @@ FROM teacher;
    there is no department.
 
 ```sql
-SELECT teacher.name, COALESCE(dept.name, 'None')
-FROM teacher
-         LEFT JOIN dept ON (dept = dept.id);
+SELECT teacher.name, COALESCE(dept.name, 'None') AS dept
+FROM teacher LEFT JOIN dept ON teacher.dept=dept.id;
 ```
 
 7. Use COUNT to show the number of teachers and the number of mobile phones.
@@ -871,25 +796,22 @@ FROM teacher;
 
 ```sql
 SELECT dept.name, COUNT(teacher.name)
-FROM teacher
-         RIGHT JOIN dept ON (dept = dept.id)
+FROM teacher RIGHT JOIN dept ON teacher.dept=dept.id
 GROUP BY dept.name;
 ```
 
 9. Use CASE to show the name of each teacher followed by 'Sci' if the teacher is in dept 1 or 2 and 'Art' otherwise.
 
 ```sql
-SELECT name,
-       CASE WHEN dept IN (1, 2) THEN 'Sci' ELSE 'Art' END
-FROM teacher;
+SELECT name, CASE WHEN (dept = 1 or dept = 2) THEN 'Sci' ELSE 'Art' END
+FROM teacher
 ```
 
 10. Use CASE to show the name of each teacher followed by 'Sci' if the teacher is in dept 1 or 2, show 'Art' if the
     teacher's dept is 3 and 'None' otherwise.
 
 ```sql
-SELECT name,
-       CASE WHEN dept IN (1, 2) THEN 'Sci' WHEN dept = 3 THEN 'Art' ELSE 'None' END
+SELECT name, CASE WHEN (dept = 1 or dept = 2) THEN 'Sci' WHEN dept = 3 THEN 'Art' ELSE 'None' END
 FROM teacher;
 ```
 
