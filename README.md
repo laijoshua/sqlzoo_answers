@@ -1,6 +1,6 @@
 # sqlzoo-solutions
 
-My solutions to all of the main 9 and 4 additional topics posted on the [sqlzoo.net](http://sqlzoo.net/)  tutorial.
+My solutions to all topics posted on the [sqlzoo.net](http://sqlzoo.net/) tutorial.
 
 ## Sections:
 
@@ -13,9 +13,6 @@ My solutions to all of the main 9 and 4 additional topics posted on the [sqlzoo.
 7. [More JOIN](#more-join)
 8. [Using NULL](#using-null)
 9. [Self JOIN](#self-join)
-
-Additionally:
-
 10. [SELECT names](#select-names)
 11. [Numeric examples](#numeric-examples)
 12. [Window functions](#window-functions)
