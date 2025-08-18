@@ -915,7 +915,8 @@ FROM route AS a
    JOIN stops AS stopb ON (b.stop = stopb.id)
    JOIN stops AS stopc ON (c.stop = stopc.id)
    JOIN stops AS stopd ON (d.stop = stopd.id)
-WHERE a.num = b.num AND c.num = d.num AND stopb.id = stopc.id AND stopa.name = 'Craiglockhart' AND stopd.name = 'Lochend';
+WHERE a.num = b.num AND c.num = d.num AND stopb.id = stopc.id AND stopa.name = 'Craiglockhart' AND stopd.name = 'Lochend'
+ORDER BY a.num, a.company, stopb.name, c.num;
 ```
 
 ## SELECT names
@@ -997,7 +998,7 @@ WHERE name LIKE '%o__o%';
 ```sql
 SELECT name
 FROM world
-WHERE name LIKE '____';
+WHERE LENGTH(name) = 4
 ```
 
 11. Find the country where the name is the capital city.
@@ -1029,8 +1030,7 @@ WHERE capital LIKE CONCAT('%', name, '%');
 ```sql
 SELECT capital, name
 FROM world
-WHERE capital LIKE CONCAT(name, '%')
-  AND capital <> name;
+WHERE capital LIKE CONCAT(name, '%') AND capital <> name;
 ```
 
 15. Show the name and the extension where the capital is an extension of name of the country.
@@ -1038,8 +1038,7 @@ WHERE capital LIKE CONCAT(name, '%')
 ```sql
 SELECT name, REPLACE(capital, name, '')
 FROM world
-WHERE capital LIKE CONCAT(name, '%')
-  AND capital <> name;
+WHERE capital LIKE CONCAT(name, '%') AND capital <> name;
 ```
 
 ## Numeric examples
